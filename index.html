@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trackline — Job Application Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- ============ TOP BAR ============ -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-name">Trackline</span>
+    </div>
+
+    <nav class="main-nav" aria-label="Primary">
+      <button class="nav-btn active" data-view="dashboard">Dashboard</button>
+      <button class="nav-btn" data-view="applications">Applications</button>
+      <button class="nav-btn" data-view="calendar">Calendar</button>
+      <button class="nav-btn" data-view="settings">Settings</button>
+    </nav>
+
+    <div class="topbar-actions">
+      <button class="btn-icon" id="theme-toggle" title="Toggle dark / light mode" aria-label="Toggle theme">🌙</button>
+      <button class="btn-primary" id="new-app-btn">+ New Application</button>
+    </div>
+  </header>
+
+  <!-- ============ DASHBOARD VIEW ============ -->
+  <main id="view-dashboard" class="view active">
+    <section class="stat-grid" id="stat-grid" aria-label="Key metrics"></section>
+
+    <section class="chart-row">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Applications over time</h2>
+          <div class="segmented" id="time-range-toggle">
+            <button class="seg-btn active" data-range="week">Weekly</button>
+            <button class="seg-btn" data-range="month">Monthly</button>
+          </div>
+        </div>
+        <div id="time-chart" class="chart-box"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>Status distribution</h2></div>
+        <div id="status-chart" class="chart-box"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Upcoming (next 14 days)</h2></div>
+      <div id="dashboard-upcoming" class="upcoming-list"></div>
+    </section>
+  </main>
+
+  <!-- ============ APPLICATIONS VIEW ============ -->
+  <main id="view-applications" class="view">
+    <section class="toolbar">
+      <input type="search" id="search-input" placeholder="Search company, position, location, notes…" class="search-input">
+
+      <select id="filter-status" multiple class="filter-select" title="Filter by status"></select>
+      <select id="filter-tag" class="filter-select" title="Filter by tag">
+        <option value="">All tags</option>
+      </select>
+      <label class="checkbox-inline">
+        <input type="checkbox" id="filter-favorite"> Favorites only
+      </label>
+
+      <select id="sort-select" class="filter-select" title="Sort by">
+        <option value="dateApplied-desc">Newest applied</option>
+        <option value="dateApplied-asc">Oldest applied</option>
+        <option value="status">Status (pipeline order)</option>
+        <option value="company">Company A–Z</option>
+        <option value="rating">Rating (high–low)</option>
+        <option value="updated">Recently updated</option>
+      </select>
+    </section>
+
+    <section class="bulk-bar" id="bulk-bar" hidden>
+      <span id="bulk-count">0 selected</span>
+      <select id="bulk-status-select" class="filter-select">
+        <option value="">Change status to…</option>
+      </select>
+      <button class="btn-secondary" id="bulk-delete-btn">Delete selected</button>
+      <button class="btn-ghost" id="bulk-clear-btn">Clear selection</button>
+    </section>
+
+    <section class="list-head">
+      <label class="checkbox-inline"><input type="checkbox" id="select-all"> Select all</label>
+      <span id="results-count" class="muted"></span>
+    </section>
+
+    <section id="application-list" class="application-list" aria-label="Applications"></section>
+    <div id="empty-state" class="empty-state" hidden>
+      <p>No applications match your filters yet.</p>
+      <button class="btn-primary" id="empty-new-btn">+ Add your first application</button>
+    </div>
+  </main>
+
+  <!-- ============ CALENDAR VIEW ============ -->
+  <main id="view-calendar" class="view">
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Calendar</h2>
+        <button class="btn-secondary" id="export-ics-btn">⤓ Export .ics (Outlook / Google / Apple)</button>
+      </div>
+      <p class="hint">
+        Trackline runs fully offline in your browser, so it can't push live updates to Outlook.
+        Export an .ics file any time and import it into Outlook (desktop or phone) to bring interviews
+        and tasks into your calendar. Re-export after adding new dates to stay in sync.
+      </p>
+      <div id="calendar-container"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Upcoming reminders</h2></div>
+      <div id="calendar-upcoming" class="upcoming-list"></div>
+    </section>
+  </main>
+
+  <!-- ============ SETTINGS VIEW ============ -->
+  <main id="view-settings" class="view">
+    <section class="panel">
+      <div class="panel-head"><h2>Appearance</h2></div>
+      <label class="checkbox-inline">
+        <input type="checkbox" id="settings-theme-check"> Use light mode
+      </label>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Resume &amp; cover letter library</h2></div>
+      <p class="hint">Keep a master list of versions so you can pick them consistently across applications.</p>
+      <div class="lib-editor">
+        <div>
+          <h3>Resume versions</h3>
+          <div id="resume-lib-list" class="chip-list"></div>
+          <div class="inline-add"><input id="resume-lib-input" placeholder="e.g. Resume — Mechanical v3"><button class="btn-secondary" id="resume-lib-add">Add</button></div>
+        </div>
+        <div>
+          <h3>Cover letter versions</h3>
+          <div id="cover-lib-list" class="chip-list"></div>
+          <div class="inline-add"><input id="cover-lib-input" placeholder="e.g. Cover Letter — Aerospace"><button class="btn-secondary" id="cover-lib-add">Add</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Custom tags</h2></div>
+      <div id="custom-tag-list" class="chip-list"></div>
+      <div class="inline-add"><input id="custom-tag-input" placeholder="e.g. relocation-required"><button class="btn-secondary" id="custom-tag-add">Add</button></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Data</h2></div>
+      <p class="hint">All data lives only in this browser's local storage. Export a backup regularly, especially before clearing browser data.</p>
+      <div class="settings-actions">
+        <button class="btn-secondary" id="export-json-btn">⤓ Export backup (.json)</button>
+        <label class="btn-secondary file-btn">
+          ⤒ Import backup (.json)
+          <input type="file" id="import-json-input" accept="application/json" hidden>
+        </label>
+        <button class="btn-danger" id="clear-data-btn">Delete all data</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ APPLICATION MODAL ============ -->
+  <div id="app-modal" class="modal-overlay" hidden>
+    <div class="modal app-modal">
+      <div class="modal-header">
+        <h2 id="modal-title">New Application</h2>
+        <button class="btn-icon" id="modal-close">✕</button>
+      </div>
+
+      <div class="modal-tabs" id="modal-tabs">
+        <button class="tab-btn active" data-tab="overview">Overview</button>
+        <button class="tab-btn" data-tab="timeline">Timeline</button>
+        <button class="tab-btn" data-tab="interviews">Interview Notes</button>
+        <button class="tab-btn" data-tab="contacts">Contacts</button>
+        <button class="tab-btn" data-tab="documents">Documents</button>
+        <button class="tab-btn" data-tab="tasks">Tasks</button>
+      </div>
+
+      <div class="modal-body" id="modal-body"></div>
+
+      <div class="modal-footer">
+        <button class="btn-danger" id="modal-delete-btn" hidden>Delete application</button>
+        <div class="spacer"></div>
+        <button class="btn-ghost" id="modal-cancel-btn">Cancel</button>
+        <button class="btn-primary" id="modal-save-btn">Save application</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ DAY DETAIL MODAL (calendar) ============ -->
+  <div id="day-modal" class="modal-overlay" hidden>
+    <div class="modal small-modal">
+      <div class="modal-header">
+        <h2 id="day-modal-title">Day</h2>
+        <button class="btn-icon" id="day-modal-close">✕</button>
+      </div>
+      <div class="modal-body" id="day-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- ============ CONFIRM DIALOG ============ -->
+  <div id="confirm-modal" class="modal-overlay" hidden>
+    <div class="modal small-modal">
+      <div class="modal-body">
+        <p id="confirm-message">Are you sure?</p>
+      </div>
+      <div class="modal-footer">
+        <div class="spacer"></div>
+        <button class="btn-ghost" id="confirm-cancel">Cancel</button>
+        <button class="btn-danger" id="confirm-ok">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="data.js"></script>
+  <script src="storage.js"></script>
+  <script src="analytics.js"></script>
+  <script src="charts.js"></script>
+  <script src="calendar.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
