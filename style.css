@@ -309,6 +309,7 @@ button, input, select, textarea { font-family: inherit; font-size: 0.92rem; colo
   z-index: 100; padding: 20px;
   backdrop-filter: blur(2px);
 }
+.modal-overlay[hidden] { display: none; }
 .modal {
   background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
   width: 100%; max-width: 640px; max-height: 88vh; display: flex; flex-direction: column;
