@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hermes Job Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- ============ TOP BAR ============ -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 18C9 18 12.5 15.5 14.5 11C16.2 7.2 16.8 4 16.8 4C16.8 4 18 7 18 11.5C18 16.8 15.3 20.6 10.5 22.3C7.6 23.3 4 23 4 23"
+                stroke="url(#wingGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 20C11.5 19.3 14 17.5 15.7 14.5C16.9 12.3 17.4 10 17.4 10C17.4 10 18.3 12 18.5 14.8C18.8 18.4 17.3 21.2 13.9 23C11.8 24.1 9 24 9 24"
+                stroke="url(#wingGrad)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+          <defs>
+            <linearGradient id="wingGrad" x1="4" y1="23" x2="18" y2="4" gradientUnits="userSpaceOnUse">
+              <stop stop-color="var(--accent-warm)"/>
+              <stop offset="1" stop-color="var(--accent)"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </span>
+      <span class="brand-name">Hermes</span>
+    </div>
+
+    <nav class="main-nav" aria-label="Primary">
+      <button class="nav-btn active" data-view="dashboard">Dashboard</button>
+      <button class="nav-btn" data-view="applications">Applications</button>
+      <button class="nav-btn" data-view="calendar">Calendar</button>
+      <button class="nav-btn" data-view="kanban">Kanban</button>
+      <button class="nav-btn" data-view="settings">Settings</button>
+    </nav>
+
+    <div class="topbar-actions">
+      <button class="btn-icon" id="theme-toggle" title="Toggle dark / light mode" aria-label="Toggle theme">
+        <svg id="theme-icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="theme-icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" hidden><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <button class="btn-primary" id="new-app-btn">+ New Application</button>
+    </div>
+  </header>
+
+  <!-- ============ DASHBOARD VIEW ============ -->
+  <main id="view-dashboard" class="view active">
+    <section class="stat-grid" id="stat-grid" aria-label="Key metrics"></section>
+
+    <section class="chart-row">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Applications over time</h2>
+          <div class="segmented" id="time-range-toggle">
+            <button class="seg-btn active" data-range="week">Weekly</button>
+            <button class="seg-btn" data-range="month">Monthly</button>
+          </div>
+        </div>
+        <div id="time-chart" class="chart-box"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>Status distribution</h2></div>
+        <div id="status-chart" class="chart-box"></div>
+      </div>
+    </section>
+
+    <section class="panel upcoming-panel">
+      <div class="panel-head"><h2>Upcoming (next 14 days)</h2></div>
+      <div id="dashboard-upcoming" class="upcoming-list"></div>
+    </section>
+  </main>
+
+  <!-- ============ APPLICATIONS VIEW ============ -->
+  <main id="view-applications" class="view">
+    <section class="toolbar">
+      <input type="search" id="search-input" placeholder="Search company, position, location, notes…" class="search-input">
+
+      <div class="status-filter-wrap" id="status-filter-wrap">
+        <button type="button" class="filter-select status-filter-btn" id="status-filter-btn" aria-haspopup="true" aria-expanded="false">
+          <span id="status-filter-label">All statuses</span>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="status-filter-menu" id="status-filter-menu" hidden>
+          <label class="status-filter-item status-filter-all">
+            <input type="checkbox" id="status-filter-all-cb" checked> All statuses
+          </label>
+          <div class="status-filter-list" id="status-filter-list"></div>
+        </div>
+      </div>
+      <select id="filter-tag" class="filter-select" title="Filter by tag">
+        <option value="">All tags</option>
+      </select>
+      <label class="checkbox-inline">
+        <input type="checkbox" id="filter-favorite"> Favorites only
+      </label>
+
+      <select id="sort-select" class="filter-select" title="Sort by">
+        <option value="dateApplied-desc">Newest applied</option>
+        <option value="dateApplied-asc">Oldest applied</option>
+        <option value="status">Status (pipeline order)</option>
+        <option value="company">Company A–Z</option>
+        <option value="rating">Rating (high–low)</option>
+        <option value="updated">Recently updated</option>
+      </select>
+    </section>
+
+    <section class="bulk-bar" id="bulk-bar" hidden>
+      <span id="bulk-count">0 selected</span>
+      <select id="bulk-status-select" class="filter-select">
+        <option value="">Change status to…</option>
+      </select>
+      <button class="btn-secondary" id="bulk-delete-btn">Delete selected</button>
+      <button class="btn-ghost" id="bulk-clear-btn">Clear selection</button>
+    </section>
+
+    <section class="list-head">
+      <label class="checkbox-inline"><input type="checkbox" id="select-all"> Select all</label>
+      <span id="results-count" class="muted"></span>
+    </section>
+
+    <section id="application-list" class="application-list" aria-label="Applications"></section>
+    <div id="empty-state" class="empty-state" hidden>
+      <p>No applications match your filters yet.</p>
+      <button class="btn-primary" id="empty-new-btn">+ Add your first application</button>
+    </div>
+  </main>
+
+  <!-- ============ CALENDAR VIEW ============ -->
+  <main id="view-calendar" class="view">
+    <section class="panel">
+      <div class="panel-head"><h2>Upcoming reminders</h2></div>
+      <div id="calendar-upcoming" class="upcoming-list"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Calendar</h2>
+        <button class="btn-secondary" id="export-ics-btn">⤓ Export .ics (Outlook / Google / Apple)</button>
+      </div>
+      <div id="calendar-container"></div>
+    </section>
+  </main>
+
+  <!-- ============ KANBAN VIEW ============ -->
+  <main id="view-kanban" class="view">
+    <section class="panel kanban-panel">
+      <div class="panel-head"><h2>Pipeline board</h2><span class="muted">Drag a card to a new column to update its status</span></div>
+      <div id="kanban-board" class="kanban-board"></div>
+    </section>
+  </main>
+
+  <!-- ============ SETTINGS VIEW ============ -->
+  <main id="view-settings" class="view">
+    <section class="panel">
+      <div class="panel-head"><h2>Appearance</h2></div>
+      <label class="checkbox-inline">
+        <input type="checkbox" id="settings-theme-check"> Use light mode
+      </label>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Resume &amp; cover letter library</h2></div>
+      <p class="hint">Keep a master list of versions so you can pick them consistently across applications.</p>
+      <div class="lib-editor">
+        <div>
+          <h3>Resume versions</h3>
+          <div id="resume-lib-list" class="chip-list"></div>
+          <div class="inline-add"><input id="resume-lib-input" placeholder="e.g. Resume — Mechanical v3"><button class="btn-secondary" id="resume-lib-add">Add</button></div>
+        </div>
+        <div>
+          <h3>Cover letter versions</h3>
+          <div id="cover-lib-list" class="chip-list"></div>
+          <div class="inline-add"><input id="cover-lib-input" placeholder="e.g. Cover Letter — Aerospace"><button class="btn-secondary" id="cover-lib-add">Add</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Custom tags</h2></div>
+      <div id="custom-tag-list" class="chip-list"></div>
+      <div class="inline-add"><input id="custom-tag-input" placeholder="e.g. relocation-required"><button class="btn-secondary" id="custom-tag-add">Add</button></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Data</h2></div>
+      <p class="hint">All data lives only in this browser's local storage. Export a backup regularly, especially before clearing browser data.</p>
+      <div class="settings-actions">
+        <button class="btn-secondary" id="export-json-btn">⤓ Export backup (.json)</button>
+        <label class="btn-secondary file-btn">
+          ⤒ Import backup (.json)
+          <input type="file" id="import-json-input" accept="application/json" hidden>
+        </label>
+        <button class="btn-danger" id="clear-data-btn">Delete all data</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ APPLICATION MODAL ============ -->
+  <div id="app-modal" class="modal-overlay" hidden>
+    <div class="modal app-modal">
+      <div class="modal-header">
+        <h2 id="modal-title">New Application</h2>
+        <button class="btn-icon" id="modal-close">✕</button>
+      </div>
+
+      <div class="modal-tabs" id="modal-tabs">
+        <button class="tab-btn active" data-tab="overview">Overview</button>
+        <button class="tab-btn" data-tab="timeline">Timeline</button>
+        <button class="tab-btn" data-tab="interviews">Interview Notes</button>
+        <button class="tab-btn" data-tab="contacts">Contacts</button>
+        <button class="tab-btn" data-tab="documents">Documents</button>
+        <button class="tab-btn" data-tab="tasks">Tasks</button>
+      </div>
+
+      <div class="modal-body" id="modal-body"></div>
+
+      <div class="modal-footer">
+        <button class="btn-danger" id="modal-delete-btn" hidden>Delete application</button>
+        <div class="spacer"></div>
+        <button class="btn-ghost" id="modal-cancel-btn">Cancel</button>
+        <button class="btn-primary" id="modal-save-btn">Save application</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ DAY DETAIL MODAL (calendar) ============ -->
+  <div id="day-modal" class="modal-overlay" hidden>
+    <div class="modal small-modal">
+      <div class="modal-header">
+        <h2 id="day-modal-title">Day</h2>
+        <button class="btn-icon" id="day-modal-close">✕</button>
+      </div>
+      <div class="modal-body" id="day-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- ============ CONFIRM DIALOG ============ -->
+  <div id="confirm-modal" class="modal-overlay" hidden>
+    <div class="modal small-modal">
+      <div class="modal-body">
+        <p id="confirm-message">Are you sure?</p>
+      </div>
+      <div class="modal-footer">
+        <div class="spacer"></div>
+        <button class="btn-ghost" id="confirm-cancel">Cancel</button>
+        <button class="btn-danger" id="confirm-ok">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="data.js"></script>
+  <script src="storage.js"></script>
+  <script src="analytics.js"></script>
+  <script src="charts.js"></script>
+  <script src="calendar.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
